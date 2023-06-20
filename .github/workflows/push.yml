@@ -37,8 +37,8 @@ jobs:
           context: .
           push: true
           tags: asia-northeast3-docker.pkg.dev/easy-wms/ez-courier-build-store/test:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          # cache-from: type=local,src=/tmp/.buildx-cache
+          # cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       # - name: Move cache
       #   run: |
