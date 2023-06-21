@@ -7,43 +7,43 @@ on:
     branches: [main]
 
 jobs:
-  migration:
-    name: db migraiton
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node_version: [16]
-        os: [ubuntu-20.04]
+  # migration:
+  #   name: db migraiton
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       node_version: [16]
+  #       os: [ubuntu-20.04]
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: use node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
+  #     - name: use node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
 
-      - name: cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+  #     - name: cache dependencies
+  #       id: cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: "**/node_modules"
+  #         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-node-
 
-      - name: install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install prisma
+  #     - name: install dependencies
+  #       if: steps.cache.outputs.cache-hit != 'true'
+  #       run: npm install prisma
 
-      - name: setting .env
-        run: |
-          echo "MYSQL_URL=${{ secrets.MYSQL_URL }}" >> .env
-          cat .env
+  #     - name: setting .env
+  #       run: |
+  #         echo "MYSQL_URL=${{ secrets.MYSQL_URL }}" >> .env
+  #         cat .env
 
-      - name: prisma migraiton
-        run: |
-          npx prisma migrate deploy
+  #     - name: prisma migraiton
+  #       run: |
+  #         npx prisma migrate deploy
 
   build:
     runs-on: ubuntu-latest
@@ -51,10 +51,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: "print"
+        run: |
+          ls
+          pwd
+
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: /tmp/.buildx-cache
+          path: /tmp-develop/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -75,10 +80,10 @@ jobs:
           context: .
           push: true
           tags: asia-northeast3-docker.pkg.dev/easy-wms/ez-courier-build-store/test:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          cache-from: type=local,src=/tmp-develop/.buildx-cache
+          cache-to: type=local,dest=/tmp-develop/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf /tmp-develop/.buildx-cache
+          mv /tmp-develop/.buildx-cache-new /tmp-develop/.buildx-cache
