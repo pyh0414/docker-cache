@@ -53,13 +53,13 @@ jobs:
 
       - name: "print"
         run: |
-          ls
+          ls -al
           pwd
 
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: /tmp-develop/.buildx-cache
+          path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -80,10 +80,10 @@ jobs:
           context: .
           push: true
           tags: asia-northeast3-docker.pkg.dev/easy-wms/ez-courier-build-store/test:latest
-          cache-from: type=local,src=/tmp-develop/.buildx-cache
-          cache-to: type=local,dest=/tmp-develop/.buildx-cache-new,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
       - name: Move cache
         run: |
-          rm -rf /tmp-develop/.buildx-cache
-          mv /tmp-develop/.buildx-cache-new /tmp-develop/.buildx-cache
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp-develop/.buildx-cache
