@@ -27,19 +27,14 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          # cache의 대상을 정합니다. npm에서 의존성이 설치되는 디렉터리인 node_modules를 대상으로 합니다.
           path: "**/node_modules"
-          # cache를 무효화하를 결정하는 기준은 의존성이 변경되면 함께 변경되는 파일인 package-lock.json을 기준으로 합니다.
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          # key가 유효하지 않은 경우 runner의 운영체제 값과 node라는 suffix를 key로 복구합니다.
-          # 결과적으로 package-lock.json이 변경되지 않았다면 캐싱된 node_modules를 사용합니다.
-          # 만약 복구될 캐시가 없다면 아래에서 사용할 cache-hit는 false가 됩니다.
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm install prisma
 
       - name: setting .env
         run: |
@@ -50,40 +45,40 @@ jobs:
         run: |
           npx prisma migrate deploy
 
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  #     - name: Cache Docker layers
-  #       uses: actions/cache@v3
-  #       with:
-  #         path: /tmp/.buildx-cache
-  #         key: ${{ runner.os }}-buildx-${{ github.sha }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-buildx-
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-  #     - name: Login to GAR
-  #       uses: docker/login-action@v2
-  #       with:
-  #         registry: asia-northeast3-docker.pkg.dev
-  #         username: _json_key
-  #         password: ${{ secrets.KEY }}
+      - name: Login to GAR
+        uses: docker/login-action@v2
+        with:
+          registry: asia-northeast3-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.KEY }}
 
-  #     - name: Build and push
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         context: .
-  #         push: true
-  #         tags: asia-northeast3-docker.pkg.dev/easy-wms/ez-courier-build-store/test:latest
-  #         cache-from: type=local,src=/tmp/.buildx-cache
-  #         cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: asia-northeast3-docker.pkg.dev/easy-wms/ez-courier-build-store/test:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-  #     - name: Move cache
-  #       run: |
-  #         rm -rf /tmp/.buildx-cache
-  #         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
