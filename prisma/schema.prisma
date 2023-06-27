@@ -15,6 +15,7 @@ model User {
   email String  @unique
   name  String?
   address  String
+  hobby  String
   posts Post[]
 }
 
