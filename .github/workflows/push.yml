@@ -16,6 +16,19 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      #     - name: cache dependencies
+      #       id: cache
+      #       uses: actions/cache@v3
+      #       with:
+      #         path: "**/node_modules"
+      #         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #         restore-keys: |
+      #           ${{ runner.os }}-node-
+
+      #     - name: install dependencies
+      #       if: steps.cache.outputs.cache-hit != 'true'
+      #       run: npm install prisma
+
       - uses: mattes/gce-cloudsql-proxy-action@v1
         with:
           creds: ${{ secrets.KEY }}
@@ -28,7 +41,6 @@ jobs:
 
       - name: prisma migraiton
         run: |
-          npm install prisma
           npx prisma migrate deploy
 
   # migration:
