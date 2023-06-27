@@ -8,8 +8,14 @@ on:
 jobs:
   migration:
     runs-on: ubuntu-20.04
-
     steps:
+      - uses: actions/checkout@v3
+
+      - name: use node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
       - uses: mattes/gce-cloudsql-proxy-action@v1
         with:
           creds: ${{ secrets.KEY }}
